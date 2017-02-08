@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -52,6 +53,7 @@ import org.everit.i18n.propsxlsconverter.internal.workbook.WorkbookWriter;
  */
 public class I18nConverterImpl implements I18nConverter {
 
+  private static final Pattern PATTERN  = Pattern.compile("^([A-Za-z0-9\\._-]+)(?: ?= ?)(.*)$");
   private static final int SEPARATOR_SIZE = 5;
 
   private static final String UNDERLINE = "_";
@@ -155,10 +157,17 @@ public class I18nConverterImpl implements I18nConverter {
           // ignore empty and comment lines
           if (!"".equals(line) && (line.charAt(0) != '#')) {
             String unescapedLine = StringEscapeUtils.unescapeJava(line);
-            int separatorIndex = getPropertySeparatorIndex(unescapedLine);
-            String propKey = unescapedLine.substring(0, separatorIndex);
-            String propValue = unescapedLine.substring(separatorIndex + 1);
-
+            Matcher matcher = PATTERN.matcher(unescapedLine);
+            String propKey = null;
+            String propValue = null;
+            if (matcher.matches()) {
+            	propKey = matcher.group(1);
+            	propValue = matcher.group(2);
+            } else {
+            	int separatorIndex = getPropertySeparatorIndex(unescapedLine);
+            	propKey = unescapedLine.substring(0, separatorIndex);
+            	propValue = unescapedLine.substring(separatorIndex + 1);
+            }
             insertOrUpdateWorkbookRow(workbookWriter, lang, fileAccess, propKey, propValue);
           }
         }
