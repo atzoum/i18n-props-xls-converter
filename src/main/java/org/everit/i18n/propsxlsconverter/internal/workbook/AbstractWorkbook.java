@@ -15,8 +15,10 @@
  */
 package org.everit.i18n.propsxlsconverter.internal.workbook;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -59,6 +61,15 @@ public abstract class AbstractWorkbook {
 
   public int getLastRowNumber() {
     return sheet.getLastRowNum();
+  }
+  
+  public Set<String> getFileNames() {
+	  Set<String> result = new HashSet<>();
+	  for (int i=1; i< getLastRowNumber(); i++) {
+		  String stringCellValue = sheet.getRow(i).getCell(COLUMN_PROPERTIES_FILE_NAME).getStringCellValue();
+		  result.add(stringCellValue);
+	  }
+	  return result;
   }
 
   protected abstract HSSFSheet initSheet();
